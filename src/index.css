@@ -1,4 +1,272 @@
+@import './styles/tokens.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  html,
+  body,
+  #root {
+    font-family: 'Inter', sans-serif;
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-fg));
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B6B6B6;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5A5A5A;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-button {
+  display: block;
+  height: 10px;
+  width: 10px;
+  background-color: transparent;
+}
+
+/* Vertical scrollbar - top button only (up arrow) */
+::-webkit-scrollbar-button:vertical:start:decrement {
+  display: block;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M5 3L2 6h6z' fill='%23B6B6B6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:start:decrement:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M5 3L2 6h6z' fill='%235A5A5A'/%3E%3C/svg%3E");
+}
+
+/* Hide the other top button */
+::-webkit-scrollbar-button:vertical:start:increment {
+  display: none;
+}
+
+/* Vertical scrollbar - bottom button only (down arrow) */
+::-webkit-scrollbar-button:vertical:end:increment {
+  display: block;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M5 7L2 4h6z' fill='%23B6B6B6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:vertical:end:increment:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M5 7L2 4h6z' fill='%235A5A5A'/%3E%3C/svg%3E");
+}
+
+/* Hide the other bottom button */
+::-webkit-scrollbar-button:vertical:end:decrement {
+  display: none;
+}
+
+/* Horizontal scrollbar - left button only (left arrow) */
+::-webkit-scrollbar-button:horizontal:start:decrement {
+  display: block;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M3 5L6 2v6z' fill='%23B6B6B6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:horizontal:start:decrement:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M3 5L6 2v6z' fill='%235A5A5A'/%3E%3C/svg%3E");
+}
+
+/* Hide the other left button */
+::-webkit-scrollbar-button:horizontal:start:increment {
+  display: none;
+}
+
+/* Horizontal scrollbar - right button only (right arrow) */
+::-webkit-scrollbar-button:horizontal:end:increment {
+  display: block;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M7 5L4 2v6z' fill='%23B6B6B6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+::-webkit-scrollbar-button:horizontal:end:increment:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M7 5L4 2v6z' fill='%235A5A5A'/%3E%3C/svg%3E");
+}
+
+/* Hide the other right button */
+::-webkit-scrollbar-button:horizontal:end:decrement {
+  display: none;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #B6B6B6;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #5A5A5A;
+}
+
+
+@layer utilities {
+  /* Ensure button backgrounds use tokens - explicitly define these classes */
+  .bg-brand {
+    background-color: rgb(var(--color-brand)) !important;
+  }
+  .bg-brandLight {
+    background-color: rgb(var(--color-brand-light)) !important;
+  }
+  
+  /* Background system classes */
+  .bg-bg2 {
+    background-color: rgb(var(--color-bg-secondary)) !important;
+  }
+  .bg-bg3 {
+    background-color: rgb(var(--color-bg-tertiary)) !important;
+  }
+  .bg-bg-active {
+    background-color: rgb(229 231 235) !important; /* gray-200 - darker for active state */
+  }
+  
+  /* Ensure button text colors use tokens - explicitly define these classes */
+  .text-fg {
+    color: rgb(var(--color-fg)) !important;
+  }
+  .text-fgInverse {
+    color: rgb(var(--color-fg-inverse)) !important;
+  }
+  .text-fg2 {
+    color: rgb(var(--color-fg-secondary)) !important;
+  }
+  .text-fg3 {
+    color: rgb(var(--color-fg-tertiary)) !important;
+  }
+  .text-fgMuted {
+    color: rgb(var(--color-fg-muted)) !important;
+  }
+}
+
+/* Hover states - defined outside layer to ensure maximum specificity */
+/* IMPORTANT: These must come after @layer utilities to override !important rules */
+
+/* Dark button hover - multiple selectors to catch all cases */
+button:hover.bg-brand,
+button.bg-brand:hover,
+.hover\:bg-brandHover:hover,
+button[class*="bg-brand"]:hover,
+button[class*="hover:bg-brandHover"]:hover {
+  background-color: rgb(var(--color-brand-hover)) !important;
+}
+
+button.bg-brand:active,
+button[class*="active:bg-brandHover"]:active {
+  background-color: rgb(var(--color-brand-hover)) !important;
+}
+
+/* Light button hover - multiple selectors to catch all cases */
+button:hover.bg-brandLight,
+button.bg-brandLight:hover,
+.hover\:bg-brandLightHover:hover,
+button[class*="bg-brandLight"]:hover,
+button[class*="hover:bg-brandLightHover"]:hover {
+  background-color: rgb(var(--color-brand-light-hover)) !important;
+}
+
+button.bg-brandLight:active,
+button[class*="active:bg-brandLightHover"]:active {
+  background-color: rgb(var(--color-brand-light-hover)) !important;
+}
+
+/* Input focus outline */
+input.input-focus-outline,
+textarea.input-focus-outline,
+button.input-focus-outline {
+  outline: 0.5px solid transparent;
+  outline-offset: 0px;
+  transition: outline 0.1s ease-in-out;
+}
+
+input.input-focus-outline:focus,
+textarea.input-focus-outline:focus,
+button.input-focus-outline:focus {
+  outline: 0.5px solid #ABABAB !important;
+  outline-offset: 0px !important;
+}
+
+/* Select dropdown options */
+button.select-option:hover {
+  background-color: rgb(var(--color-select-hover)) !important;
+}
+
+button.select-option-unselected {
+  color: rgb(var(--color-input-placeholder)) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important; /* medium */
+  font-size: 12px !important;
+}
+
+button.select-option-unselected span {
+  color: rgb(var(--color-input-placeholder)) !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important; /* medium */
+  font-size: 12px !important;
+}
+
+button.select-option-selected {
+  color: rgb(var(--color-fg)) !important;
+}
+
+button.select-option-selected span {
+  color: rgb(var(--color-fg)) !important;
+}
+
+/* Hide number input spinner arrows */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Input placeholder styling to match design spec */
+input.input-focus-outline::placeholder,
+input[class*="input-focus-outline"]::placeholder,
+textarea.input-focus-outline::placeholder,
+textarea[class*="input-focus-outline"]::placeholder,
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
+  color: #9A9A9A !important;
+  font-weight: 500 !important;
+}
 

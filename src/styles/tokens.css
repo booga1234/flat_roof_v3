@@ -1,0 +1,171 @@
+:root {
+  /* Brand Colors */
+  --color-brand: 13 13 13; /* #0D0D0D */
+  --color-brand-hover: 20 20 20; /* #141414 - subtle lighter for hover */
+  --color-brand-light: 237 237 237; /* #EDEDED */
+  --color-brand-light-hover: 228 228 228; /* #E4E4E4 - subtle darker for hover */
+
+  /* Accent Colors */
+  --color-accent: 99 102 241; /* #6366F1 - indigo-500 */
+  --color-accent-hover: 79 70 229; /* #4F46E5 - indigo-600 */
+  --color-accent-light: 199 210 254; /* #C7D2FE - indigo-200 */
+  --color-accent-dark: 67 56 202; /* #4338CA - indigo-700 */
+
+  /* Status Colors */
+  --color-success: 34 197 94; /* #22C55E - green-500 */
+  --color-success-light: 187 247 208; /* #BBF7D0 - green-200 */
+  --color-success-dark: 22 163 74; /* #16A34A - green-600 */
+  
+  --color-warning: 251 191 36; /* #FBBF24 - amber-400 */
+  --color-warning-light: 254 243 199; /* #FEF3C7 - amber-100 */
+  --color-warning-dark: 217 119 6; /* #D97706 - amber-600 */
+  
+  --color-error: 239 68 68; /* #EF4444 - red-500 */
+  --color-error-light: 254 226 226; /* #FEE2E2 - red-100 */
+  --color-error-dark: 220 38 38; /* #DC2626 - red-600 */
+
+  /* Background System */
+  --color-bg: 255 255 255; /* #FFFFFF - white */
+  --color-bg-secondary: 249 250 251; /* #F9FAFB - gray-50 */
+  --color-bg-tertiary: 243 244 246; /* #F3F4F6 - gray-100 */
+  --color-bg-accent: 239 246 255; /* #EFF6FF - blue-50 */
+  --color-bg-gradient-start: 255 255 255; /* #FFFFFF - white */
+  --color-bg-gradient-end: 255 255 255; /* #FFFFFF - white */
+
+  /* Foreground/Text System */
+  --color-fg: 17 24 39; /* #111827 - gray-900 */
+  --color-fg-secondary: 75 85 99; /* #4B5563 - gray-600 */
+  --color-fg-tertiary: 156 163 175; /* #9CA3AF - gray-400 */
+  --color-fg-inverse: 255 255 255; /* #FFFFFF - white */
+  --color-fg-muted: 107 114 128; /* #6B7280 - gray-500 */
+
+  /* Border Colors */
+  --color-border: 229 231 235; /* #E5E7EB - gray-200 */
+  --color-border-light: 243 244 246; /* #F3F4F6 - gray-100 */
+  --color-border-dark: 209 213 219; /* #D1D5DB - gray-300 */
+  --color-border-focus: 99 102 241; /* #6366F1 - indigo-500 */
+  --color-border-input: 238 238 238; /* #EEEEEE - input border color */
+
+  /* Card Colors */
+  --color-card: 255 255 255; /* #FFFFFF - white */
+  --color-card-hover: 249 250 251; /* #F9FAFB - gray-50 */
+  --color-card-border: 229 231 235; /* #E5E7EB - gray-200 */
+
+  /* Input Colors */
+  --color-input: 255 255 255; /* #FFFFFF - white */
+  --color-input-border: 209 213 219; /* #D1D5DB - gray-300 */
+  --color-input-border-hover: 156 163 175; /* #9CA3AF - gray-400 */
+  --color-input-border-focus: 99 102 241; /* #6366F1 - indigo-500 */
+  --color-input-bg: 255 255 255; /* #FFFFFF - white */
+  --color-input-placeholder: 197 197 197; /* #C5C5C5 - placeholder text color */
+  --color-select-hover: 243 244 246; /* #F3F4F6 - gray-100 - hover select color */
+
+  /* Overlay Colors */
+  --color-overlay: 0 0 0; /* black */
+  --color-overlay-light: 0 0 0; /* black */
+  --color-overlay-dark: 0 0 0; /* black */
+
+  /* Shadow Colors */
+  --color-shadow: 0 0 0; /* black */
+  --color-shadow-light: 0 0 0; /* black */
+  --color-shadow-dark: 0 0 0; /* black */
+
+  /* Radius Scale */
+  --radius-xs: 0.25rem; /* 4px */
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-2xl: 1.5rem; /* 24px */
+  --radius-full: 9999px; /* full */
+
+  /* Spacing Scale (using Tailwind's default scale) */
+  --spacing-0: 0;
+  --spacing-1: 0.25rem; /* 4px */
+  --spacing-2: 0.5rem; /* 8px */
+  --spacing-3: 0.75rem; /* 12px */
+  --spacing-4: 1rem; /* 16px */
+  --spacing-5: 1.25rem; /* 20px */
+  --spacing-6: 1.5rem; /* 24px */
+  --spacing-8: 2rem; /* 32px */
+  --spacing-10: 2.5rem; /* 40px */
+  --spacing-12: 3rem; /* 48px */
+  --spacing-16: 4rem; /* 64px */
+  --spacing-20: 5rem; /* 80px */
+  --spacing-24: 6rem; /* 96px */
+}
+
+/* Dark Theme Override */
+.dark {
+  /* Brand Colors */
+  --color-brand: 255 255 255; /* #FFFFFF - white */
+  --color-brand-hover: 243 244 246; /* #F3F4F6 - gray-100 */
+  --color-brand-light: 31 41 55; /* #1F2937 - gray-800 */
+  --color-brand-light-hover: 55 65 81; /* #374151 - gray-700 */
+
+  /* Accent Colors */
+  --color-accent: 129 140 248; /* #818CF8 - indigo-400 */
+  --color-accent-hover: 99 102 241; /* #6366F1 - indigo-500 */
+  --color-accent-light: 67 56 202; /* #4338CA - indigo-700 */
+  --color-accent-dark: 79 70 229; /* #4F46E5 - indigo-600 */
+
+  /* Status Colors */
+  --color-success: 74 222 128; /* #4ADE80 - green-400 */
+  --color-success-light: 22 163 74; /* #16A34A - green-600 */
+  --color-success-dark: 34 197 94; /* #22C55E - green-500 */
+  
+  --color-warning: 251 191 36; /* #FBBF24 - amber-400 */
+  --color-warning-light: 217 119 6; /* #D97706 - amber-600 */
+  --color-warning-dark: 251 191 36; /* #FBBF24 - amber-400 */
+  
+  --color-error: 248 113 113; /* #F87171 - red-400 */
+  --color-error-light: 220 38 38; /* #DC2626 - red-600 */
+  --color-error-dark: 239 68 68; /* #EF4444 - red-500 */
+
+  /* Background System */
+  --color-bg: 17 24 39; /* #111827 - gray-900 */
+  --color-bg-secondary: 31 41 55; /* #1F2937 - gray-800 */
+  --color-bg-tertiary: 55 65 81; /* #374151 - gray-700 */
+  --color-bg-accent: 30 41 59; /* #1E293B - slate-800 */
+  --color-bg-gradient-start: 30 41 59; /* #1E293B - slate-800 */
+  --color-bg-gradient-end: 15 23 42; /* #0F172A - slate-900 */
+
+  /* Foreground/Text System */
+  --color-fg: 249 250 251; /* #F9FAFB - gray-50 */
+  --color-fg-secondary: 209 213 219; /* #D1D5DB - gray-300 */
+  --color-fg-tertiary: 156 163 175; /* #9CA3AF - gray-400 */
+  --color-fg-inverse: 17 24 39; /* #111827 - gray-900 */
+  --color-fg-muted: 156 163 175; /* #9CA3AF - gray-400 */
+
+  /* Border Colors */
+  --color-border: 55 65 81; /* #374151 - gray-700 */
+  --color-border-light: 75 85 99; /* #4B5563 - gray-600 */
+  --color-border-dark: 31 41 55; /* #1F2937 - gray-800 */
+  --color-border-focus: 129 140 248; /* #818CF8 - indigo-400 */
+  --color-border-input: 238 238 238; /* #EEEEEE - input border color */
+
+  /* Card Colors */
+  --color-card: 31 41 55; /* #1F2937 - gray-800 */
+  --color-card-hover: 55 65 81; /* #374151 - gray-700 */
+  --color-card-border: 55 65 81; /* #374151 - gray-700 */
+
+  /* Input Colors */
+  --color-input: 31 41 55; /* #1F2937 - gray-800 */
+  --color-input-border: 55 65 81; /* #374151 - gray-700 */
+  --color-input-border-hover: 75 85 99; /* #4B5563 - gray-600 */
+  --color-input-border-focus: 129 140 248; /* #818CF8 - indigo-400 */
+  --color-input-bg: 31 41 55; /* #1F2937 - gray-800 */
+  --color-input-placeholder: 197 197 197; /* #C5C5C5 - placeholder text color */
+  --color-select-hover: 55 65 81; /* #374151 - gray-700 - hover select color */
+
+  /* Overlay Colors */
+  --color-overlay: 0 0 0; /* black */
+  --color-overlay-light: 0 0 0; /* black */
+  --color-overlay-dark: 0 0 0; /* black */
+
+  /* Shadow Colors */
+  --color-shadow: 0 0 0; /* black */
+  --color-shadow-light: 0 0 0; /* black */
+  --color-shadow-dark: 0 0 0; /* black */
+}
+
