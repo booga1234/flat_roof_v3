@@ -9,6 +9,7 @@ import Settings from './pages/Settings'
 import Team from './pages/Team'
 import Leads from './pages/Leads'
 import Estimates from './pages/Estimates'
+import Proposals from './pages/Proposals'
 import ProtectedRoute from './components/ProtectedRoute'
 import RoleProtectedRoute from './components/RoleProtectedRoute'
 import Sidebar from './components/Sidebar'
@@ -48,6 +49,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/leads" element={<Leads />} />
         <Route path="/estimates" element={<Estimates />} />
+        <Route path="/proposals" element={<Proposals />} />
         <Route 
           path="/team" 
           element={

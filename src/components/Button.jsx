@@ -14,7 +14,7 @@ function Button({ children, variant = 'dark', width, className = '', disabled, .
 
   return (
     <button
-      className={`font-inter font-medium text-xs inline-flex flex-row items-center justify-center px-[10px] py-[7px] gap-[10px] h-[29px] w-fit ${variantStyles} rounded-[6px] border-0 outline-none ${disabledStyles} ${className}`}
+      className={`font-inter font-medium text-xs inline-flex flex-row items-center justify-center px-[10px] py-[7px] gap-[5px] h-[29px] w-fit ${variantStyles} rounded-[6px] border-0 outline-none ${disabledStyles} ${className}`}
       style={style}
       disabled={disabled}
       {...props}

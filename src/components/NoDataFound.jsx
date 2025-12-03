@@ -5,7 +5,10 @@ function NoDataFound({
   heading = "No time slots found", 
   message = "Create a time slot below.",
   buttonText = "Create",
-  onButtonClick 
+  onButtonClick,
+  icon: IconComponent = Calendar,
+  iconSize = 18,
+  iconStrokeWidth = 1.5
 }) {
   return (
     <div
@@ -25,9 +28,9 @@ function NoDataFound({
           gap: '5px'
         }}
       >
-        <Calendar
-          size={18}
-          strokeWidth={1.5}
+        <IconComponent
+          size={iconSize}
+          strokeWidth={iconStrokeWidth}
           style={{
             color: '#000000'
           }}
