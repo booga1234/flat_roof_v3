@@ -11,7 +11,6 @@ query "ai-generate" verb=POST {
   }
 
   stack {
-    // Ensure prompt is present
     precondition (($input.prompt|strlen) > 0) {
       error_type = "inputerror"
       error = "prompt is required"
@@ -33,8 +32,6 @@ query "ai-generate" verb=POST {
         |push:"Content-Type: application/json"
         |push:("Authorization: Bearer " ~ $env.openai_api_key)
       timeout = 60
-      verify_host = true
-      verify_peer = true
     } as $ai_response
 
     var $assistant_message {
