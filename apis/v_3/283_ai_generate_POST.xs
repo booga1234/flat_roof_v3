@@ -17,9 +17,15 @@ query "ai-generate" verb=POST {
     }
 
     var $message_content {
-      value = ($input.existing_content != null && ($input.existing_content|strlen) > 0)
-        ? ("Current text:\n" ~ $input.existing_content ~ "\n\nUser request:\n" ~ $input.prompt)
-        : $input.prompt
+      value = $input.prompt
+    }
+
+    conditional {
+      if ($input.existing_content != null && ($input.existing_content|strlen) > 0) {
+        var.update $message_content {
+          value = "Current text:\n" ~ $input.existing_content ~ "\n\nUser request:\n" ~ $input.prompt
+        }
+      }
     }
 
     api.request {
