@@ -1,0 +1,12 @@
+{
+  "instanceName": "xayv-jjxe-ueqz",
+  "workspaceName": "FR LLC",
+  "workspaceId": 5,
+  "branch": "v1",
+  "paths": {
+    "functions": "functions",
+    "tables": "tables",
+    "apis": "apis",
+    "tasks": "tasks"
+  }
+}
