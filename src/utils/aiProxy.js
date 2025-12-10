@@ -1,4 +1,4 @@
-import { API_BASE_URL } from '../config/api'
+import { API_V3_BASE_URL } from '../config/api'
 
 export async function generateText(prompt, existingContent = '') {
   const body = {
@@ -6,7 +6,7 @@ export async function generateText(prompt, existingContent = '') {
     existing_content: existingContent || undefined
   }
 
-  const response = await fetch(`${API_BASE_URL}/ai-generate`, {
+  const response = await fetch(`${API_V3_BASE_URL}/ai-generate`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
