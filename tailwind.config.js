@@ -79,6 +79,14 @@ export default {
         shadow: 'rgb(var(--color-shadow) / <alpha-value>)',
         shadowLight: 'rgb(var(--color-shadow-light) / <alpha-value>)',
         shadowDark: 'rgb(var(--color-shadow-dark) / <alpha-value>)',
+        
+        // Custom Green Colors
+        'light-green': '#E8F4E6',
+        'dark-green': '#45833F',
+        
+        // Custom Grey Colors
+        'light-grey': '#ECECEC',
+        'dark-grey': '#5D5D5D',
       },
       borderRadius: {
         xs: 'var(--radius-xs)',

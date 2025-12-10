@@ -1,5 +1,22 @@
+/**
+ * Sidebar - A collapsible primary navigation sidebar
+ * 
+ * Usage:
+ * <Sidebar>
+ *   <SidebarSection title="Sales">
+ *     <SidebarItem to="/leads" label="Leads" icon={User} />
+ *   </SidebarSection>
+ *   <SidebarSection title="Projects">
+ *     <SidebarItem to="/projects" label="Projects" icon={Frame} />
+ *   </SidebarSection>
+ * </Sidebar>
+ * 
+ * Or with data-driven approach:
+ * <Sidebar sections={navSections} />
+ */
+
+import { useState, createContext, useContext } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
 import {
   User,
   File,
@@ -16,192 +33,273 @@ import {
   PanelLeft
 } from 'lucide-react'
 
-function Sidebar() {
+// Context for sharing state across items
+const SidebarContext = createContext({
+  hoveredItem: null,
+  setHoveredItem: () => {},
+  isActive: () => false,
+  isCollapsed: false
+})
+
+export function useSidebarContext() {
+  return useContext(SidebarContext)
+}
+
+// Main Sidebar Container
+export function Sidebar({ 
+  children, 
+  sections,
+  expandedWidth = '162px',
+  collapsedWidth = '50px',
+  backgroundColor = '#F3F3F3',
+  className = ''
+}) {
   const location = useLocation()
   const [hoveredItem, setHoveredItem] = useState(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
 
-  const navSections = [
-    {
-      title: 'Sales',
-      items: [
-        { path: '/leads', label: 'Leads', icon: User },
-        { path: '/estimates', label: 'Estimates', icon: Calculator },
-        { path: '/proposals', label: 'Proposals', icon: File }
-      ]
-    },
-    {
-      title: 'Projects',
-      items: [
-        { path: '/active-jobs', label: 'Active Jobs', icon: Frame },
-        { path: '/inspections', label: 'Inspections', icon: HardHat },
-        { path: '/work-orders', label: 'Work Orders', icon: PencilRuler },
-        { path: '/photos', label: 'Photos', icon: Camera }
-      ]
-    },
-    {
-      title: 'Financial',
-      items: [
-        { path: '/invoices', label: 'Invoices', icon: ReceiptText },
-        { path: '/budget', label: 'Budget / Costs', icon: PiggyBank },
-        { path: '/payroll', label: 'Payroll', icon: Banknote }
-      ]
-    },
-    {
-      title: 'Optimize',
-      items: [
-        { path: '/reports', label: 'Reports', icon: ChartLine },
-        { path: '/materials', label: 'Materials', icon: Package }
-      ]
+  const isActive = (path, defaultPath) => {
+    if (defaultPath && location.pathname === defaultPath.base && path === defaultPath.target) {
+      return true
     }
-  ]
+    if (location.pathname === path) {
+      return true
+    }
+    if (location.pathname.startsWith(path + '/')) {
+      return true
+    }
+    return false
+  }
 
-  const isActive = (path) => {
-    return location.pathname === path
+  const contextValue = {
+    hoveredItem,
+    setHoveredItem,
+    isActive,
+    isCollapsed
   }
 
   return (
-    <div
-      className="flex flex-col h-full"
-      style={{
-        backgroundColor: '#F3F3F3',
-        padding: '10px',
-        width: isCollapsed ? '50px' : '162px',
-        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        overflow: 'hidden'
-      }}
-    >
-      {/* Navigation Links Wrapper */}
+    <SidebarContext.Provider value={contextValue}>
       <div
-        className="flex flex-col items-start"
+        className={`flex flex-col h-full ${className}`}
         style={{
-          gap: '15px'
+          backgroundColor,
+          width: isCollapsed ? collapsedWidth : expandedWidth,
+          transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+          overflow: 'hidden'
         }}
       >
-        {navSections.map((section) => (
-          <div key={section.title} className="w-full">
-            {/* Section Header */}
-            <div
-              style={{
-                color: '#979797',
-                marginBottom: '6px',
-                paddingLeft: '10px',
-                paddingRight: '10px',
-                height: '14px',
-                lineHeight: '14px',
-                opacity: isCollapsed ? 0 : 1,
-                overflow: 'hidden',
-                transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              <span 
-                style={{
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '12px',
-                  letterSpacing: '-0.01em',
-                  fontWeight: 500,
-                  display: 'block',
-                  visibility: isCollapsed ? 'hidden' : 'visible',
-                  height: '14px',
-                  lineHeight: '14px'
-                }}
-              >
-                {section.title}
-              </span>
-            </div>
-
-            {/* Section Items */}
-            <div
-              className="flex flex-col"
-              style={{
-                gap: '3px'
-              }}
-            >
-              {section.items.map((item) => {
-                const Icon = item.icon
-                const active = isActive(item.path)
-                const isHovered = hoveredItem === item.path
-
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className="no-underline"
-                  >
-                    <div
-                      className="flex flex-row items-center justify-start"
-                      style={{
-                        width: isCollapsed ? '30px' : '142px',
-                        height: '30px',
-                        backgroundColor: active ? '#DFDFDF' : (isHovered ? '#E5E5E5' : 'transparent'),
-                        borderRadius: '7px',
-                        padding: isCollapsed ? '7px' : '7px 9px',
-                        gap: isCollapsed ? '0px' : '7px',
-                        color: active ? '#000000' : 'inherit',
-                        position: 'relative',
-                        marginLeft: isCollapsed ? 'auto' : '0',
-                        marginRight: isCollapsed ? 'auto' : '0',
-                        transition: 'background-color 0.2s ease, width 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1), gap 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin-right 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxSizing: 'border-box'
-                      }}
-                      onMouseEnter={() => setHoveredItem(item.path)}
-                      onMouseLeave={() => setHoveredItem(null)}
-                    >
-                      <Icon 
-                        size={16} 
-                        style={{ 
-                          color: active ? '#000000' : 'currentColor',
-                          flexShrink: 0
-                        }} 
-                      />
-                      <span 
-                        style={{
-                          fontFamily: 'Inter, sans-serif',
-                          fontSize: '12px',
-                          letterSpacing: '-0.01em',
-                          fontWeight: 500,
-                          color: active ? '#000000' : 'inherit',
-                          opacity: isCollapsed ? 0 : 1,
-                          position: isCollapsed ? 'absolute' : 'static',
-                          left: isCollapsed ? '-9999px' : 'auto',
-                          whiteSpace: 'nowrap',
-                          transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }}
-                      >
-                        {item.label}
-                      </span>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Bottom Icon */}
-      <div 
-        style={{ 
-          marginTop: 'auto',
-          marginBottom: '0',
-          display: 'flex',
-          justifyContent: 'flex-start'
-        }}
-      >
-        <button
-          className="p-2 border-none bg-transparent cursor-pointer"
-          aria-label="Collapse sidebar"
+        <div
+          className="flex flex-col items-start flex-1"
           style={{
-            padding: '8px'
+            gap: '20px',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: isCollapsed ? '16px 9px 0 9px' : '16px 12px 0 12px',
+            transition: 'padding 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
-          onClick={() => setIsCollapsed(!isCollapsed)}
         >
-          <PanelLeft size={16} style={{ color: 'currentColor' }} />
-        </button>
+          {/* Data-driven rendering */}
+          {sections && sections.map((section, index) => (
+            <SidebarSection key={section.title || index} title={section.title}>
+              {section.items.map((item) => (
+                <SidebarItem
+                  key={item.path}
+                  to={item.path}
+                  label={item.label}
+                  icon={item.icon}
+                  defaultPath={section.defaultPath}
+                />
+              ))}
+            </SidebarSection>
+          ))}
+
+          {/* Composable children */}
+          {children}
+        </div>
+
+        {/* Collapse Toggle Button */}
+        <div 
+          style={{ 
+            marginTop: 'auto',
+            padding: isCollapsed ? '16px 9px' : '16px 12px',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            transition: 'padding 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+          <button
+            className="border-none bg-transparent cursor-pointer"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            style={{
+              padding: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            <PanelLeft 
+              size={16} 
+              style={{ 
+                color: 'currentColor',
+                transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }} 
+            />
+          </button>
+        </div>
+      </div>
+    </SidebarContext.Provider>
+  )
+}
+
+// Section with optional title
+export function SidebarSection({ 
+  title, 
+  children,
+  defaultPath 
+}) {
+  const { isCollapsed } = useSidebarContext()
+
+  return (
+    <div className="w-full">
+      {title && (
+        <div
+          style={{
+            color: '#909090',
+            marginBottom: '8px',
+            paddingLeft: '12px',
+            opacity: isCollapsed ? 0 : 1,
+            overflow: 'hidden',
+            transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
+        >
+          <span 
+            className="text-section-header"
+            style={{
+              display: 'block',
+              visibility: isCollapsed ? 'hidden' : 'visible'
+            }}
+          >
+            {title}
+          </span>
+        </div>
+      )}
+
+      <div
+        className="flex flex-col"
+        style={{ gap: '5px' }}
+      >
+        {children}
       </div>
     </div>
   )
 }
 
-export default Sidebar
+// Individual navigation item
+export function SidebarItem({ 
+  to, 
+  label, 
+  icon: Icon,
+  defaultPath,
+  onClick,
+  activeColor = '#DFDFDF',
+  hoverColor = '#E9E9E9',
+  textColor = '#1A1A1A'
+}) {
+  const { hoveredItem, setHoveredItem, isActive, isCollapsed } = useSidebarContext()
+  const active = isActive(to, defaultPath)
+  const isHovered = hoveredItem === to
 
+  const content = (
+    <div
+      className="flex flex-row items-center justify-start"
+      style={{
+        width: isCollapsed ? '32px' : '100%',
+        height: '32px',
+        backgroundColor: active ? activeColor : (isHovered ? hoverColor : 'transparent'),
+        borderRadius: '6px',
+        padding: isCollapsed ? '8px' : '8px 12px',
+        gap: '8px',
+        color: textColor,
+        fontWeight: 400,
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'background-color 0.15s ease, width 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxSizing: 'border-box'
+      }}
+      onMouseEnter={() => setHoveredItem(to)}
+      onMouseLeave={() => setHoveredItem(null)}
+    >
+      {Icon && (
+        <Icon 
+          size={16} 
+          style={{ 
+            color: 'currentColor',
+            flexShrink: 0
+          }} 
+        />
+      )}
+      <span 
+        className="font-inter text-sm tracking-[-0.01em] whitespace-nowrap"
+        style={{
+          opacity: isCollapsed ? 0 : 1,
+          transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+        }}
+      >
+        {label}
+      </span>
+    </div>
+  )
+
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className="no-underline w-full text-left bg-transparent border-none p-0 cursor-pointer"
+      >
+        {content}
+      </button>
+    )
+  }
+
+  return (
+    <Link to={to} className="no-underline">
+      {content}
+    </Link>
+  )
+}
+
+// Pre-configured Main Navigation Sidebar
+export function MainSidebar() {
+  return (
+    <Sidebar>
+      <SidebarSection title="Sales">
+        <SidebarItem to="/leads" label="Leads" icon={User} />
+        <SidebarItem to="/estimates" label="Estimates" icon={Calculator} />
+        <SidebarItem to="/proposals" label="Proposals" icon={File} />
+      </SidebarSection>
+
+      <SidebarSection title="Projects">
+        <SidebarItem to="/active-jobs" label="Active Jobs" icon={Frame} />
+        <SidebarItem to="/inspections" label="Inspections" icon={HardHat} />
+        <SidebarItem to="/work-orders" label="Work Orders" icon={PencilRuler} />
+        <SidebarItem to="/photos" label="Photos" icon={Camera} />
+      </SidebarSection>
+
+      <SidebarSection title="Financial">
+        <SidebarItem to="/invoices" label="Invoices" icon={ReceiptText} />
+        <SidebarItem to="/budget" label="Budget / Costs" icon={PiggyBank} />
+        <SidebarItem to="/payroll" label="Payroll" icon={Banknote} />
+      </SidebarSection>
+
+      <SidebarSection title="Optimize">
+        <SidebarItem to="/reports" label="Reports" icon={ChartLine} />
+        <SidebarItem to="/materials" label="Materials" icon={Package} />
+      </SidebarSection>
+    </Sidebar>
+  )
+}
+
+export default Sidebar

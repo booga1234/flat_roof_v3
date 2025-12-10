@@ -10,7 +10,6 @@ function SegmentedControl({
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [internalValue, setInternalValue] = useState(value)
   const [pillStyle, setPillStyle] = useState({ width: 0, left: 0, height: 0, top: 0 })
-  const [containerHeight, setContainerHeight] = useState(null)
   const [enableTransition, setEnableTransition] = useState(false)
   const buttonRefs = useRef([])
   const containerRef = useRef(null)
@@ -20,7 +19,7 @@ function SegmentedControl({
   const selectedValue = value !== undefined ? value : internalValue
   const selectedIndex = options.findIndex(opt => opt === selectedValue)
   
-  // Function to update pill position and container height
+  // Function to update pill position
   const updatePillPosition = useCallback(() => {
     if (buttonRefs.current[selectedIndex] && containerRef.current) {
       const selectedButton = buttonRefs.current[selectedIndex]
@@ -29,18 +28,12 @@ function SegmentedControl({
       const buttonRect = selectedButton.getBoundingClientRect()
       const containerRect = container.getBoundingClientRect()
       
-      // Calculate container height based on selected button height + container padding (4px total)
-      const calculatedHeight = buttonRect.height + 4 // 2px top + 2px bottom padding
-      
       setPillStyle({
         width: buttonRect.width,
         left: buttonRect.left - containerRect.left,
         height: buttonRect.height,
         top: buttonRect.top - containerRect.top
       })
-      
-      // Set container height to prevent shifting (always update to match selected button)
-      setContainerHeight(calculatedHeight)
     }
   }, [selectedIndex])
   
@@ -86,10 +79,9 @@ function SegmentedControl({
   return (
     <div
       ref={containerRef}
-      className={`relative inline-flex flex-row items-center gap-[2px] p-[2px] rounded-[7px] ${className}`}
+      className={`relative inline-flex flex-row items-center gap-[2px] p-[2px] rounded-[6px] w-fit h-8 ${className}`}
       style={{
-        backgroundColor: '#EDEDED',
-        ...(containerHeight ? { height: `${containerHeight}px` } : { minHeight: '29px' })
+        backgroundColor: '#EDEDED'
       }}
       {...props}
     >
@@ -100,8 +92,8 @@ function SegmentedControl({
           style={{
             width: `${pillStyle.width}px`,
             left: `${pillStyle.left}px`,
-            top: `${pillStyle.top || 2}px`,
-            height: `${pillStyle.height || 'calc(100% - 4px)'}px`,
+            top: `${pillStyle.top}px`,
+            height: `${pillStyle.height}px`,
             backgroundColor: '#FFFFFF',
             pointerEvents: 'none',
             zIndex: 0
@@ -119,9 +111,6 @@ function SegmentedControl({
           textColor = '#000000'
         }
         
-        // Selected buttons keep 5px vertical padding, unselected have 3.5px (3px shorter total)
-        const verticalPadding = isSelected ? 5 : 3.5
-        
         return (
           <button
             key={index}
@@ -130,16 +119,13 @@ function SegmentedControl({
             onClick={() => handleClick(option)}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
-            className="relative inline-flex flex-row items-center justify-center gap-[10px] rounded-[6px] transition-colors duration-200 cursor-pointer border-0 outline-none z-10"
+            className="relative inline-flex flex-row items-center justify-center rounded-[5px] transition-colors duration-200 cursor-pointer border-0 outline-none z-10 flex-shrink-0 h-full"
             style={{
-              paddingTop: `${verticalPadding}px`,
-              paddingBottom: `${verticalPadding}px`,
-              paddingLeft: '10px',
-              paddingRight: '10px',
+              padding: '0px 10px',
               backgroundColor: isHovered ? '#DADADA' : 'transparent',
               fontFamily: 'Inter',
               fontSize: '12px',
-              letterSpacing: '-1%',
+              letterSpacing: '-0.01em',
               fontWeight: isSelected ? 600 : 500,
               color: textColor
             }}

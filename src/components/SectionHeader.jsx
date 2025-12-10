@@ -1,13 +1,11 @@
-function SectionHeader({ children, className = '' }) {
+function SectionHeader({ children, className = '', noBorder = false }) {
   return (
     <div
       className={`flex flex-col items-start ${className}`}
       style={{
-        padding: '10px 0px',
-        borderBottom: '1px solid #EDEDED',
-        borderTop: '0px',
-        borderLeft: '0px',
-        borderRight: '0px'
+        padding: '8px 0px',
+        borderBottom: noBorder ? 'none' : '1px solid #EDEDED',
+        marginBottom: '16px'
       }}
     >
       <h3
@@ -16,7 +14,7 @@ function SectionHeader({ children, className = '' }) {
           fontSize: '10px',
           fontWeight: 600,
           color: '#5D5D5D',
-          letterSpacing: '0.03em',
+          letterSpacing: '0.05em',
           margin: 0,
           textTransform: 'uppercase'
         }}
@@ -27,5 +25,18 @@ function SectionHeader({ children, className = '' }) {
   )
 }
 
+// Section wrapper component that groups content under a header
+function Section({ title, children, className = '', noBorder = false }) {
+  return (
+    <div className={`flex flex-col ${className}`}>
+      <SectionHeader noBorder={noBorder}>{title}</SectionHeader>
+      <div className="flex flex-col gap-4">
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export default SectionHeader
+export { Section, SectionHeader }
 

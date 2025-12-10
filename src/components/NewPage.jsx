@@ -6,7 +6,7 @@ function NewPage({ children, className = '' }) {
         minHeight: 0, // Important for flex children to respect parent constraints
         minWidth: 0,  // Important for flex children to respect parent constraints
         backgroundColor: '#FFFFFF',
-        borderRadius: '7px', // 7px on all corners
+        borderRadius: '10px', // Consistent 10px rounded corners
       }}
     >
       {children}

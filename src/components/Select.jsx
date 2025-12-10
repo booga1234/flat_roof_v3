@@ -20,7 +20,6 @@ function Select({
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
-  const [selectedValue, setSelectedValue] = useState(value || null)
   const [searchQuery, setSearchQuery] = useState('')
   const [hoveredIndex, setHoveredIndex] = useState(-1)
   const [fetchedOptions, setFetchedOptions] = useState([])
@@ -29,6 +28,9 @@ function Select({
   const buttonRef = useRef(null)
   const searchInputRef = useRef(null)
   const dropdownRef = useRef(null)
+  
+  // Use the value prop directly instead of internal state to prevent sync issues
+  const selectedValue = value ?? null
 
   // Fetch options from Xano if fetchFrom is specified
   useEffect(() => {
@@ -90,10 +92,7 @@ function Select({
   // Use fetched options if fetchFrom is specified, otherwise use provided options
   const availableOptions = fetchFrom ? fetchedOptions : options
 
-  // Update selectedValue when value prop changes
-  useEffect(() => {
-    setSelectedValue(value || null)
-  }, [value])
+  // selectedValue is now derived directly from props, no sync needed
 
   // Handle opening animation
   useEffect(() => {
@@ -193,17 +192,18 @@ function Select({
   }, [isOpen])
 
   const handleSelect = (optionValue) => {
-    setSelectedValue(optionValue)
     if (onChange) {
       onChange(optionValue)
     }
     handleClose()
   }
 
-  // Filter options based on search query
-  const filteredOptions = availableOptions.filter(option =>
-    option.label.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Filter options based on search query (search in both label and description)
+  const filteredOptions = availableOptions.filter(option => {
+    const labelMatch = option.label.toLowerCase().includes(searchQuery.toLowerCase())
+    const descriptionMatch = (option.description || option.desc || '').toLowerCase().includes(searchQuery.toLowerCase())
+    return labelMatch || descriptionMatch
+  })
 
   const selectedOption = availableOptions.find(opt => opt.value === selectedValue)
   const displayText = selectedOption ? selectedOption.label : (isLoading ? 'Loading...' : placeholder)
@@ -371,6 +371,7 @@ function Select({
                   const isHovered = hoveredIndex === index
                   // Show hover style if explicitly hovered, or if selected and no other option is hovered
                   const shouldShowHoverStyle = isHovered || (isSelected && hoveredIndex === -1)
+                  const hasDescription = option.description || option.desc
                   return (
                     <button
                       key={option.value}
@@ -378,7 +379,7 @@ function Select({
                       onClick={() => handleSelect(option.value)}
                       onMouseEnter={() => setHoveredIndex(index)}
                       onMouseLeave={() => setHoveredIndex(-1)}
-                      className={`w-full flex flex-row items-center gap-[5px] px-2 py-1.5 text-left font-inter text-[12px] transition-colors rounded-[6px] ${
+                      className={`w-full flex flex-row items-start gap-[5px] px-2 py-1.5 text-left font-inter text-[12px] transition-colors rounded-[6px] ${
                         shouldShowHoverStyle ? 'bg-[#ECECEC]' : 'bg-white'
                       }`}
                       style={{
@@ -387,29 +388,45 @@ function Select({
                         color: '#282828',
                       }}
                     >
-                      {isSelected ? (
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 12 12"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="flex-shrink-0"
-                        >
-                          <path
-                            d="M10 3L4.5 8.5L2 6"
-                            stroke="#282828"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      ) : (
-                        <div className="w-3 h-3 flex-shrink-0" />
-                      )}
-                      <span>
-                        {option.label}
-                      </span>
+                      <div className="flex items-start flex-shrink-0" style={{ paddingTop: '2px' }}>
+                        {isSelected ? (
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M10 3L4.5 8.5L2 6"
+                              stroke="#282828"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        ) : (
+                          <div className="w-3 h-3" />
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-0.5 flex-1">
+                        <span>
+                          {option.label}
+                        </span>
+                        {hasDescription && (
+                          <span
+                            className="font-inter text-[11px]"
+                            style={{
+                              color: '#9A9A9A',
+                              letterSpacing: '-0.01em',
+                              fontWeight: 400,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {option.description || option.desc}
+                          </span>
+                        )}
+                      </div>
                     </button>
                   )
                 })

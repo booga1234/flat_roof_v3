@@ -771,6 +771,7 @@ function TimeSlots() {
 
       {/* Main Content Area */}
       <TwoColumnLayout
+        leftLoading={loading}
         leftContent={
           <>
             {events.length > 0 && (
@@ -792,12 +793,6 @@ function TimeSlots() {
                 >
                   Time slots
                 </span>
-              </div>
-            )}
-
-            {loading && (
-              <div className="flex items-center justify-center py-8">
-                <span style={{ color: '#676767', fontSize: '12px' }}>Loading events...</span>
               </div>
             )}
 
@@ -907,7 +902,7 @@ function TimeSlots() {
         rightContent={
           <div
             style={{
-              maxWidth: currentEvent ? '50rem' : 'none',
+              maxWidth: currentEvent ? '30rem' : 'none',
               margin: '0',
               gap: '30px',
               display: 'flex',

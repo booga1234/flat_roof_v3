@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, Outlet } from 'react-router-dom'
+import { Routes, Route, useLocation, Outlet, Navigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Components from './pages/Components'
 import Login from './pages/Login'
@@ -8,18 +8,28 @@ import TimeSlots from './pages/TimeSlots'
 import Settings from './pages/Settings'
 import Team from './pages/Team'
 import Leads from './pages/Leads'
+import Inspections from './pages/Inspections'
 import Estimates from './pages/Estimates'
 import Proposals from './pages/Proposals'
 import ProtectedRoute from './components/ProtectedRoute'
 import RoleProtectedRoute from './components/RoleProtectedRoute'
-import Sidebar from './components/Sidebar'
+import { MainSidebar } from './components/Sidebar'
 import SidebarLibrary from './components/SidebarLibrary'
+import SidebarSettings from './components/SidebarSettings'
 import Topbar from './components/Topbar'
 
 function Layout() {
   const location = useLocation()
   const isLibraryRoute = location.pathname.startsWith('/library')
-  const SidebarComponent = isLibraryRoute ? SidebarLibrary : Sidebar
+  const isSettingsRoute = location.pathname.startsWith('/settings')
+  
+  const getSidebarComponent = () => {
+    if (isSettingsRoute) return SidebarSettings
+    if (isLibraryRoute) return SidebarLibrary
+    return MainSidebar
+  }
+  
+  const SidebarComponent = getSidebarComponent()
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
@@ -27,7 +37,7 @@ function Layout() {
       <div className="flex flex-1 overflow-hidden min-h-0">
         <SidebarComponent />
         <main className="flex-1 overflow-hidden min-h-0" style={{ backgroundColor: '#F3F3F3' }}>
-          <div style={{ paddingBottom: '10px', paddingRight: '10px', height: '100%' }}>
+          <div style={{ padding: '10px', paddingLeft: '0', paddingTop: '0', height: '100%', boxSizing: 'border-box' }}>
             <Outlet />
           </div>
         </main>
@@ -46,8 +56,9 @@ function App() {
         <Route path="/pipeline/:selection?" element={<Pipeline />} />
         <Route path="/library" element={<Library />} />
         <Route path="/library/time-slots" element={<TimeSlots />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/leads" element={<Leads />} />
+        <Route path="/settings/*" element={<Settings />} />
+        <Route path="/leads/:leadId?" element={<Leads />} />
+        <Route path="/inspections/:inspectionId?" element={<Inspections />} />
         <Route path="/estimates" element={<Estimates />} />
         <Route path="/proposals" element={<Proposals />} />
         <Route 
@@ -58,6 +69,8 @@ function App() {
             </RoleProtectedRoute>
           } 
         />
+        {/* Catch-all route for unknown paths - redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )

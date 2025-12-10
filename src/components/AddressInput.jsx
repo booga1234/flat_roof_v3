@@ -478,7 +478,7 @@ function AddressInput({ value, onChange, ...props }) {
   }, [value, suggestions.length, showSuggestions])
 
   return (
-    <div ref={inputRef} style={{ position: 'relative', width: '100%', zIndex: 1 }}>
+    <div ref={inputRef} style={{ position: 'relative', width: '100%', minWidth: '100%', boxSizing: 'border-box', zIndex: 1 }}>
       <Input
         {...props}
         value={internalValue}
@@ -502,7 +502,10 @@ function AddressInput({ value, onChange, ...props }) {
             position: 'absolute',
             top: '100%',
             left: 0,
+            right: 0,
             width: '100%',
+            minWidth: '100%',
+            boxSizing: 'border-box',
             marginTop: '4px',
             backgroundColor: '#FFFFFF',
             border: '0.5px solid #E2E2E2',

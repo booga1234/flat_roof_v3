@@ -3,9 +3,11 @@ import NewPage from '../components/NewPage'
 import PageHeader from '../components/PageHeader'
 import Button from '../components/Button'
 import ContactSelect from '../components/ContactSelect'
+import AddressSelect from '../components/AddressSelect'
 import Modal from '../components/Modal'
 import Popup from '../components/Popup'
 import SearchPanel from '../components/SearchPanel'
+import HelpText from '../components/HelpText'
 
 function Proposals() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -16,8 +18,15 @@ function Proposals() {
     <NewPage>
       <PageHeader text="Proposals" />
       <div className="flex flex-col gap-4 p-6">
+        <div className="flex items-center gap-2">
+          <h2 className="font-sans text-lg tracking-[-0.01em] font-medium text-black">
+            Proposal Information
+          </h2>
+          <HelpText text="This page allows you to manage and view all your proposals. You can create new proposals, edit existing ones, and track their status." />
+        </div>
         <div className="flex gap-4">
           <ContactSelect />
+          <AddressSelect />
           <Button onClick={() => setIsModalOpen(true)}>
             Test Modal
           </Button>
@@ -47,14 +56,7 @@ function Proposals() {
             <Modal.Pages>
               {page === "search" && (
                 <div key="search" className="modal-page-static flex flex-col">
-                  <h2
-                    className="font-inter font-semibold"
-                    style={{
-                      fontSize: '24px',
-                      color: '#282828',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
+                  <h2 className="font-sans text-lg tracking-[-0.01em] font-medium text-black">
                     Select a contact
                   </h2>
                   <SearchPanel />

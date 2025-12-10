@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_V2_BASE_URL } from '../config/api'
+import { API_BASE_URL, API_V2_BASE_URL, API_CONTACTS_BASE_URL } from '../config/api'
 
 /**
  * API Service Utility for Xano Workspace #5 (FR LLC)
@@ -341,40 +341,215 @@ export const genericAPI = {
 }
 
 // ============================================
+// TRASH API
+// ============================================
+
+export const trashAPI = {
+  // Get all trashed items (leads with is_deleted = true)
+  getAll: () => {
+    // Direct fetch to the trash endpoint
+    const url = `${API_CONTACTS_BASE_URL}/trash`
+    return fetch(url, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+        }
+        return response.json()
+      })
+  },
+
+  // Permanently delete an item
+  permanentDelete: (id) => {
+    const url = `${API_CONTACTS_BASE_URL}/trash/${id}`
+    return fetch(url, {
+      method: 'DELETE',
+      headers: getHeaders(),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+        }
+        return response.json().catch(() => ({}))
+      })
+  },
+
+  // Restore an item (set is_deleted to false)
+  restore: (id) => {
+    const url = `${API_CONTACTS_BASE_URL}/trash/${id}/restore`
+    return fetch(url, {
+      method: 'PATCH',
+      headers: getHeaders(),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`)
+        }
+        return response.json().catch(() => ({}))
+      })
+  },
+}
+
+// ============================================
 // LEADS API
 // ============================================
 
+// Helper function to make API requests with API_CONTACTS_BASE_URL
+const contactsApiRequest = async (endpoint, method = 'GET', body = null) => {
+  const url = endpoint.startsWith('http') ? endpoint : `${API_CONTACTS_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
+  
+  const options = {
+    method,
+    headers: getHeaders(),
+  }
+
+  if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT' || method === 'DELETE')) {
+    options.body = JSON.stringify(body)
+  }
+
+  try {
+    console.log(`[Leads API] ${method} ${url}`, body ? { body } : '')
+    const response = await fetch(url, options)
+    
+    let data
+    let responseText = null
+    
+    try {
+      responseText = await response.text()
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText)
+        } catch (parseError) {
+          data = { message: responseText, raw: responseText }
+        }
+      } else {
+        data = {}
+      }
+    } catch (readError) {
+      console.error('[Leads API] Error reading response:', readError)
+      data = { message: 'Failed to read response', raw: '' }
+    }
+
+    if (!response.ok) {
+      console.error('[Leads API] Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: data,
+        responseText: responseText,
+        url: url,
+        method: method,
+        body: body ? JSON.stringify(body, null, 2) : null
+      })
+      
+      const errorMessage = data?.message || 
+                          data?.error || 
+                          data?.raw || 
+                          (typeof data === 'string' ? data : null) ||
+                          responseText ||
+                          `API request failed: ${response.status} ${response.statusText}`
+      
+      throw new Error(errorMessage)
+    }
+
+    console.log('[Leads API] Success response:', data)
+    return data
+  } catch (error) {
+    console.error('[Leads API] Request error:', {
+      endpoint,
+      method,
+      url,
+      error: error.message,
+      stack: error.stack
+    })
+    throw error
+  }
+}
+
+// Helper function to get current user ID from localStorage
+const getCurrentUserId = () => {
+  try {
+    const userData = localStorage.getItem('user')
+    if (userData) {
+      const user = JSON.parse(userData)
+      return user?.id || null
+    }
+  } catch (error) {
+    console.error('[Leads API] Error getting current user ID:', error)
+  }
+  return null
+}
+
 export const leadsAPI = {
   // Get all leads
-  getAll: () => apiRequest('/leads', 'GET'),
+  getAll: () => contactsApiRequest('/leads', 'GET'),
 
-  // Get single lead by ID
-  getById: (id) => apiRequest(`/lead-view?id=${id}`, 'GET'),
+  // Get single lead by ID - GET /leads/{leads_id}
+  getById: (id) => contactsApiRequest(`/leads/${id}`, 'GET'),
 
   // Create new lead
-  create: (leadData) => {
-    const payload = {
-      Name: leadData.name || leadData.Name,
-      email: leadData.email || null,
-      phone: leadData.phone || null,
-      property_id: leadData.propertyId || leadData.property_id || null,
-      address: leadData.address || null,
-      status: leadData.status || 'new',
-      lead_source_id: leadData.leadSourceId || leadData.lead_source_id || null,
-      notes: leadData.notes || null,
-      internal_notes: leadData.internalNotes || leadData.internal_notes || null,
-      assigned_to_id: leadData.assignedToId || leadData.assigned_to_id || null,
-    }
-    return apiRequest('/leads-new', 'POST', payload)
+  create: (leadData = {}) => {
+    // Build payload with only provided fields, or empty object for minimal lead
+    const payload = {}
+    
+    if (leadData.name || leadData.Name) payload.Name = leadData.name || leadData.Name
+    if (leadData.email) payload.email = leadData.email
+    if (leadData.phone) payload.phone = leadData.phone
+    if (leadData.propertyId || leadData.property_id) payload.property_id = leadData.propertyId || leadData.property_id
+    if (leadData.address) payload.address = leadData.address
+    if (leadData.status) payload.status = leadData.status
+    if (leadData.leadSourceId || leadData.lead_source_id) payload.lead_source_id = leadData.leadSourceId || leadData.lead_source_id
+    if (leadData.notes) payload.notes = leadData.notes
+    if (leadData.internalNotes || leadData.internal_notes) payload.internal_notes = leadData.internalNotes || leadData.internal_notes
+    if (leadData.assignedToId || leadData.assigned_to_id) payload.assigned_to_id = leadData.assignedToId || leadData.assigned_to_id
+    
+    // Use /leads endpoint
+    return contactsApiRequest('/leads', 'POST', payload)
   },
 
-  // Update lead
+  // Update lead - PATCH to /leads/{leads_id}
   update: (id, leadData) => {
-    const payload = {
-      id,
-      data: leadData
+    // Build payload with only the fields that are being updated
+    const payload = {}
+    
+    if (leadData.priority !== undefined) payload.priority = leadData.priority
+    if (leadData.status !== undefined) payload.status = leadData.status
+    // For text fields, convert empty strings to null so the API accepts them as "clearing" the field
+    if (leadData.problem_description !== undefined) payload.problem_description = leadData.problem_description === '' ? null : leadData.problem_description
+    if (leadData.intake_notes !== undefined) payload.intake_notes = leadData.intake_notes === '' ? null : leadData.intake_notes
+    if (leadData.contact_id !== undefined) payload.contact_id = leadData.contact_id
+    if (leadData.property_id !== undefined) {
+      payload.property_id = leadData.property_id
+      console.log('[Leads API] Including property_id in update payload:', leadData.property_id, 'Type:', typeof leadData.property_id)
+    } else {
+      console.log('[Leads API] property_id is undefined, not including in payload')
     }
-    return apiRequest('/lead-patch', 'PATCH', payload)
+    if (leadData.lead_source_id !== undefined) payload.lead_source_id = leadData.lead_source_id
+    if (leadData.lead_reason_id !== undefined) payload.lead_reason_id = leadData.lead_reason_id
+    if (leadData.is_deleted !== undefined) payload.is_deleted = leadData.is_deleted
+    
+    // Always include updated_by_user_id with current user
+    const currentUserId = getCurrentUserId()
+    if (currentUserId) {
+      payload.updated_by_user_id = currentUserId
+    }
+    
+    console.log('[Leads API] Update payload:', JSON.stringify(payload, null, 2))
+    return contactsApiRequest(`/leads/${id}`, 'PATCH', payload)
+  },
+
+  // Soft delete lead - sets is_deleted to true
+  delete: (id) => {
+    const currentUserId = getCurrentUserId()
+    const payload = {
+      is_deleted: true
+    }
+    if (currentUserId) {
+      payload.updated_by_user_id = currentUserId
+    }
+    console.log('[Leads API] Soft delete payload:', JSON.stringify(payload, null, 2))
+    return contactsApiRequest(`/leads/${id}`, 'PATCH', payload)
   },
 }
 
@@ -383,8 +558,21 @@ export const leadsAPI = {
 // ============================================
 
 export const inspectionsAPI = {
-  // Get all inspections
-  getAll: () => apiRequest('/inspections', 'GET'),
+  // Get all inspections with optional filters
+  // Filters: status, inspection_type_id, inspector_id, date_range (all, today, 7_days, 30_days)
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams()
+    if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+    if (filters.inspection_type_id) params.append('inspection_type_id', filters.inspection_type_id)
+    if (filters.inspector_id) params.append('inspector_id', filters.inspector_id)
+    if (filters.date_range && filters.date_range !== 'all') params.append('date_filter', filters.date_range)
+    
+    const queryString = params.toString()
+    return contactsApiRequest(`/inspections${queryString ? `?${queryString}` : ''}`, 'GET')
+  },
+
+  // Get single inspection by ID
+  getById: (id) => contactsApiRequest(`/inspections/${id}`, 'GET'),
 
   // Create new inspection
   create: (inspectionData) => {
@@ -410,7 +598,7 @@ export const inspectionsAPI = {
       estimated_duration_minutes: inspectionData.estimatedDurationMinutes || inspectionData.estimated_duration_minutes || null,
       requires_follow_up: inspectionData.requiresFollowUp || inspectionData.requires_follow_up || false,
     }
-    return apiRequest('/inspections-new', 'POST', payload)
+    return contactsApiRequest('/inspections', 'POST', payload)
   },
 
   // Update inspection
@@ -419,7 +607,7 @@ export const inspectionsAPI = {
       id,
       data: inspectionData
     }
-    return apiRequest('/inspection-patch', 'PATCH', payload)
+    return contactsApiRequest(`/inspections/${id}`, 'PATCH', payload)
   },
 }
 
@@ -429,7 +617,7 @@ export const inspectionsAPI = {
 
 export const inspectionTypesAPI = {
   // Get all inspection types
-  getAll: () => apiRequest('/inspection-types', 'GET'),
+  getAll: () => contactsApiRequest('/inspection_types', 'GET'),
 }
 
 // ============================================
@@ -532,7 +720,16 @@ export const mediaAPI = {
 
 export const leadSourcesAPI = {
   // Get all lead sources
-  getAll: () => apiRequest('/lead-sources', 'GET'),
+  getAll: () => contactsApiRequest('/lead_sources', 'GET'),
+}
+
+// ============================================
+// LEAD REASONS API
+// ============================================
+
+export const leadReasonsAPI = {
+  // Get all lead reasons
+  getAll: () => contactsApiRequest('/lead_reasons', 'GET'),
 }
 
 // ============================================
@@ -548,12 +745,86 @@ export const callReasonsAPI = {
 // PROPERTIES API
 // ============================================
 
+// Helper function to make API requests with API_CONTACTS_BASE_URL for properties
+const propertiesApiRequest = async (endpoint, method = 'GET', body = null) => {
+  const url = endpoint.startsWith('http') ? endpoint : `${API_CONTACTS_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`
+  
+  const options = {
+    method,
+    headers: getHeaders(),
+  }
+
+  if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT' || method === 'DELETE')) {
+    options.body = JSON.stringify(body)
+  }
+
+  try {
+    console.log(`[Properties API] ${method} ${url}`, body ? { body } : '')
+    const response = await fetch(url, options)
+    
+    let data
+    let responseText = null
+    
+    try {
+      responseText = await response.text()
+      if (responseText) {
+        try {
+          data = JSON.parse(responseText)
+        } catch (parseError) {
+          data = { message: responseText, raw: responseText }
+        }
+      } else {
+        data = {}
+      }
+    } catch (readError) {
+      console.error('[Properties API] Error reading response:', readError)
+      data = { message: 'Failed to read response', raw: '' }
+    }
+
+    if (!response.ok) {
+      console.error('[Properties API] Error response:', {
+        status: response.status,
+        statusText: response.statusText,
+        data: data,
+        responseText: responseText,
+        url: url,
+        method: method,
+        body: body ? JSON.stringify(body, null, 2) : null
+      })
+      
+      const errorMessage = data?.message || 
+                          data?.error || 
+                          data?.raw || 
+                          (typeof data === 'string' ? data : null) ||
+                          responseText ||
+                          `API request failed: ${response.status} ${response.statusText}`
+      
+      throw new Error(errorMessage)
+    }
+
+    console.log('[Properties API] Success response:', data)
+    return data
+  } catch (error) {
+    console.error('[Properties API] Request error:', {
+      endpoint,
+      method,
+      url,
+      error: error.message,
+      stack: error.stack
+    })
+    throw error
+  }
+}
+
 export const propertiesAPI = {
   // Get all properties
   getAll: () => apiRequest('/properties', 'GET'),
 
-  // Get property by ID - try multiple endpoint formats
-  getById: async (id) => {
+  // Get property by ID using contacts API base URL
+  getById: (id) => propertiesApiRequest(`/properties/${id}`, 'GET'),
+
+  // Get property by ID - try multiple endpoint formats (legacy method for backwards compatibility)
+  getByIdLegacy: async (id) => {
     try {
       // Try the standard endpoint first
       return await apiRequest(`/properties/${id}`, 'GET')
@@ -603,24 +874,19 @@ export const propertiesAPI = {
     }
   },
 
-  // Find or create property (checks if exists, creates if not)
-  findOrCreate: (propertyData) => {
-    // Endpoint expects: street_address, city, state, zip_code, country (optional), property_type_id (optional)
+  // Find or create property using Google Place ID
+  // The API will check if property exists, if not it fetches address from Google and creates it
+  findOrCreate: async (googlePlaceId) => {
     const payload = {
-      street_address: propertyData.street_address || '',
-      city: propertyData.city || '',
-      state: propertyData.state || '',
-      zip_code: propertyData.zip_code || '',
-      country: propertyData.country || 'USA'
+      google_place_id: googlePlaceId
     }
     
-    // property_type_id is optional - only include if provided
-    if (propertyData.property_type_id) {
-      payload.property_type_id = propertyData.property_type_id
-    }
+    console.log('[Properties API] Finding or creating property with google_place_id:', googlePlaceId)
     
-    console.log('[Properties API] Finding or creating property with payload:', payload)
-    return apiRequest('/properties', 'POST', payload)
+    // Use propertiesApiRequest (contacts API base URL) - endpoint is POST /property
+    const result = await propertiesApiRequest('/property', 'POST', payload)
+    console.log('[Properties API] findOrCreate response:', JSON.stringify(result, null, 2))
+    return result
   },
 
   // Create new property (legacy - kept for backwards compatibility)
@@ -651,6 +917,44 @@ export const propertiesAPI = {
       data: propertyData
     }
     return apiRequest('/property-patch', 'PATCH', payload)
+  },
+}
+
+// ============================================
+// LOCATIONS API
+// ============================================
+
+export const locationsAPI = {
+  // Get user locations (returns locations the user has access to)
+  // The API may return expanded location data or just location_id
+  getUserLocations: () => contactsApiRequest('/user_locations', 'GET'),
+  
+  // Get location details by ID (if needed)
+  getLocationById: (locationId) => contactsApiRequest(`/locations/${locationId}`, 'GET'),
+  
+  // Get all locations (if needed to fetch details)
+  getAllLocations: () => contactsApiRequest('/locations', 'GET'),
+}
+
+// ============================================
+// USER API
+// ============================================
+
+export const userAPI = {
+  // Get user by ID
+  getById: (userId) => contactsApiRequest(`/user/${userId}`, 'GET'),
+
+  // Update user - PATCH to /user/{user_id}
+  update: (userId, userData) => {
+    const payload = {}
+    
+    if (userData.first_name !== undefined) payload.first_name = userData.first_name
+    if (userData.last_name !== undefined) payload.last_name = userData.last_name
+    if (userData.email !== undefined) payload.email = userData.email
+    if (userData.phone !== undefined) payload.phone = userData.phone
+    if (userData.name !== undefined) payload.name = userData.name
+    
+    return contactsApiRequest(`/user/${userId}`, 'PATCH', payload)
   },
 }
 
@@ -871,9 +1175,13 @@ export default {
   inspectionResults: inspectionResultsAPI,
   media: mediaAPI,
   leadSources: leadSourcesAPI,
+  leadReasons: leadReasonsAPI,
   callReasons: callReasonsAPI,
   properties: propertiesAPI,
+  locations: locationsAPI,
   calendarEvents: calendarEventsAPI,
+  user: userAPI,
   generic: genericAPI,
+  trash: trashAPI,
 }
 
