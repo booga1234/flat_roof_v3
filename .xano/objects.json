@@ -1522,9 +1522,9 @@
   },
   {
     "id": 0,
-    "path": "apis/v_1/283_ai_generate_POST.xs",
+    "path": "apis/v_3/283_ai_generate_POST.xs",
     "status": "new",
     "type": "api_endpoint",
-    "staged": false
+    "staged": true
   }
 ]
