@@ -19,7 +19,7 @@ query "ai-generate" verb=POST {
 
     var $message_content {
       value = ($input.existing_content != null && ($input.existing_content|strlen) > 0)
-        ? ("Current text:\n\"" ~ $input.existing_content ~ "\"\n\nUser request:\n" ~ $input.prompt)
+        ? ("Current text:\n" ~ $input.existing_content ~ "\n\nUser request:\n" ~ $input.prompt)
         : $input.prompt
     }
 
