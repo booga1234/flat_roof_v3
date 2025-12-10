@@ -8,85 +8,7 @@ import EditIcon from './EditIcon'
 import WritingAssistantPopup from './WritingAssistantPopup'
 import LoadingTextAnimation from './LoadingTextAnimation'
 import Button from './Button'
-
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
-const ASSISTANT_ID = import.meta.env.VITE_OPENAI_ASSISTANT_ID || ''
-
-// Helper function to call OpenAI Assistants API
-async function callAssistant(userMessage, existingContent = '') {
-  const headers = {
-    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-    'Content-Type': 'application/json',
-    'OpenAI-Beta': 'assistants=v2'
-  }
-
-  const threadResponse = await fetch('https://api.openai.com/v1/threads', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({})
-  })
-  const thread = await threadResponse.json()
-  
-  if (!thread.id) {
-    throw new Error('Failed to create thread')
-  }
-
-  const messageContent = existingContent 
-    ? `Current text:\n"${existingContent}"\n\nUser request:\n${userMessage}`
-    : userMessage
-
-  await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      role: 'user',
-      content: messageContent
-    })
-  })
-
-  const runResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      assistant_id: ASSISTANT_ID
-    })
-  })
-  const run = await runResponse.json()
-
-  if (!run.id) {
-    throw new Error('Failed to create run')
-  }
-
-  let runStatus = run.status
-  while (runStatus === 'queued' || runStatus === 'in_progress') {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
-    const statusResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
-      method: 'GET',
-      headers
-    })
-    const statusData = await statusResponse.json()
-    runStatus = statusData.status
-    
-    if (runStatus === 'failed' || runStatus === 'cancelled' || runStatus === 'expired') {
-      throw new Error(`Run ${runStatus}: ${statusData.last_error?.message || 'Unknown error'}`)
-    }
-  }
-
-  const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-    method: 'GET',
-    headers
-  })
-  const messagesData = await messagesResponse.json()
-
-  const assistantMessage = messagesData.data?.find(m => m.role === 'assistant')
-  if (!assistantMessage) {
-    throw new Error('No response from assistant')
-  }
-
-  const textContent = assistantMessage.content?.find(c => c.type === 'text')
-  return textContent?.text?.value || ''
-}
+import { generateText } from '../utils/aiProxy'
 
 // Quick generate side popup component
 function QuickGeneratePopup({ isOpen, onClose, onGenerate, existingContent }) {
@@ -537,7 +459,7 @@ function Input({ label, description, placeholder = 'Enter a user friendly name',
   const handleQuickGenerate = async (prompt, existingContent) => {
     setIsAiLoading(true)
     try {
-      const response = await callAssistant(prompt, existingContent)
+      const response = await generateText(prompt, existingContent)
       if (onChange) {
         const syntheticEvent = {
           target: { value: response },

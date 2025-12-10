@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, Children, isValidElement } from 'react'
 import Button from './Button'
 import EditIcon from './EditIcon'
 import LoadingTextAnimation from './LoadingTextAnimation'
+import { generateText } from '../utils/aiProxy'
 
 // Helper to extract text from React elements recursively
 function extractTextFromElement(element) {
@@ -19,93 +20,6 @@ function extractTextFromElement(element) {
   }
   
   return ''
-}
-
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || ''
-const ASSISTANT_ID = import.meta.env.VITE_OPENAI_ASSISTANT_ID || ''
-
-// Helper function to call OpenAI Assistants API
-async function callAssistant(userMessage, existingContent = '') {
-  const headers = {
-    'Authorization': `Bearer ${OPENAI_API_KEY}`,
-    'Content-Type': 'application/json',
-    'OpenAI-Beta': 'assistants=v2'
-  }
-
-  // 1. Create a thread
-  const threadResponse = await fetch('https://api.openai.com/v1/threads', {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({})
-  })
-  const thread = await threadResponse.json()
-  
-  if (!thread.id) {
-    throw new Error('Failed to create thread')
-  }
-
-  // 2. Add message to thread
-  // Include existing content as context if available
-  const messageContent = existingContent 
-    ? `Current text:\n"${existingContent}"\n\nUser request:\n${userMessage}`
-    : userMessage
-
-  await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      role: 'user',
-      content: messageContent
-    })
-  })
-
-  // 3. Run the assistant
-  const runResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      assistant_id: ASSISTANT_ID
-    })
-  })
-  const run = await runResponse.json()
-
-  if (!run.id) {
-    throw new Error('Failed to create run')
-  }
-
-  // 4. Poll for completion
-  let runStatus = run.status
-  while (runStatus === 'queued' || runStatus === 'in_progress') {
-    await new Promise(resolve => setTimeout(resolve, 500)) // Wait 500ms
-    
-    const statusResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
-      method: 'GET',
-      headers
-    })
-    const statusData = await statusResponse.json()
-    runStatus = statusData.status
-    
-    if (runStatus === 'failed' || runStatus === 'cancelled' || runStatus === 'expired') {
-      throw new Error(`Run ${runStatus}: ${statusData.last_error?.message || 'Unknown error'}`)
-    }
-  }
-
-  // 5. Get the messages
-  const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-    method: 'GET',
-    headers
-  })
-  const messagesData = await messagesResponse.json()
-
-  // Get the latest assistant message
-  const assistantMessage = messagesData.data?.find(m => m.role === 'assistant')
-  if (!assistantMessage) {
-    throw new Error('No response from assistant')
-  }
-
-  // Extract text from the message
-  const textContent = assistantMessage.content?.find(c => c.type === 'text')
-  return textContent?.text?.value || ''
 }
 
 // Small side popup for AI generation input
@@ -323,7 +237,7 @@ function WritingAssistantPopup({ isOpen, onClose, onSave, initialValue = '', onL
     setIsGenerating(true)
     
     try {
-      const response = await callAssistant(prompt, textValue)
+      const response = await generateText(prompt, textValue)
       setTextValue(response)
     } catch (err) {
       console.error('Assistant error:', err)
