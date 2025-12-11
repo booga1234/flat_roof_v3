@@ -1,13 +1,11 @@
+// Proxy for OpenAI chat completions. Calls server-side to keep API keys hidden.
 query "ai-generate" verb=POST {
-  description = "Proxy for OpenAI chat completions. Calls server-side to keep API keys hidden."
-
   input {
-    text prompt filters=trim {
-      description = "User prompt to generate or edit content"
-    }
-    text existing_content? filters=trim {
-      description = "Optional existing content to provide edit context"
-    }
+    // User prompt to generate or edit content
+    text prompt filters=trim
+  
+    // Optional existing content to provide edit context
+    text existing_content? filters=trim
   }
 
   stack {
@@ -15,11 +13,11 @@ query "ai-generate" verb=POST {
       error_type = "inputerror"
       error = "prompt is required"
     }
-
+  
     var $message_content {
       value = $input.prompt
     }
-
+  
     conditional {
       if ($input.existing_content != null && ($input.existing_content|strlen) > 0) {
         var.update $message_content {
@@ -27,26 +25,28 @@ query "ai-generate" verb=POST {
         }
       }
     }
-
+  
     api.request {
       url = "https://api.openai.com/v1/chat/completions"
       method = "POST"
       params = {}
         |set:"model":"gpt-4o-mini"
-        |set:"messages":([]|push:({}|set:"role":"user"|set:"content":$message_content))
+        |set:"messages":([]
+          |push:({}
+            |set:"role":"user"
+            |set:"content":$message_content
+          )
+        )
       headers = []
         |push:"Content-Type: application/json"
         |push:("Authorization: Bearer " ~ $env.openai_api_key)
       timeout = 60
     } as $ai_response
-
+  
     var $assistant_message {
       value = $ai_response.response.result.choices[0].message.content
     }
   }
 
-  response = {
-    text: $assistant_message
-  }
+  response = {text: $assistant_message}
 }
-
