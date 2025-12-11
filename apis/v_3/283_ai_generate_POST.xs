@@ -44,9 +44,20 @@ query "ai-generate" verb=POST {
     } as $ai_response
   
     var $assistant_message {
-      value = $ai_response.response.result.choices[0].message.content
+      value = ""
+    }
+  
+    conditional {
+      if ($ai_response.response.choices != null && ($ai_response.response.choices|count) > 0) {
+        var.update $assistant_message {
+          value = $ai_response.response.choices[0].message.content
+        }
+      }
     }
   }
 
-  response = {text: $assistant_message}
+  response = {
+    text: $assistant_message
+    raw : $ai_response.response
+  }
 }
