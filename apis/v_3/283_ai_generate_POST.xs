@@ -43,21 +43,31 @@ query "ai-generate" verb=POST {
       timeout = 60
     } as $ai_response
   
+    // Normalize choices path from OpenAI response
+    var $choices {
+      value = $ai_response.response.result.choices
+    }
+  
+    conditional {
+      if ($choices == null && $ai_response.response.choices != null) {
+        var.update $choices {
+          value = $ai_response.response.choices
+        }
+      }
+    }
+  
     var $assistant_message {
       value = ""
     }
   
     conditional {
-      if ($ai_response.response.choices != null && ($ai_response.response.choices|count) > 0) {
+      if ($choices != null && ($choices|count) > 0) {
         var.update $assistant_message {
-          value = $ai_response.response.choices[0].message.content
+          value = $choices[0].message.content
         }
       }
     }
   }
 
-  response = {
-    text: $assistant_message
-    raw : $ai_response.response
-  }
+  response = {text: $assistant_message, raw: $ai_response.response}
 }
